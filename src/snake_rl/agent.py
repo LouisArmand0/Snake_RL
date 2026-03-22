@@ -3,12 +3,11 @@ from __future__ import annotations
 import pickle
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, Tuple
 
 import gymnasium as gym
 import numpy as np
 
-State = Tuple[int, ...]
+State = tuple[int, ...]
 
 
 class SnakeAgent:
@@ -113,7 +112,7 @@ class SnakeAgent:
         with Path(path).open("rb") as f:
             payload = pickle.load(f)
 
-        q_values: Dict[State, np.ndarray] = payload["q_values"]
+        q_values: dict[State, np.ndarray] = payload["q_values"]
         self.q_values = defaultdict(lambda: np.zeros(self.env.action_space.n))
         self.q_values.update(q_values)
         self.epsilon = payload.get("epsilon", self.epsilon)

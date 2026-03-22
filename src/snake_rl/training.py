@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 import gymnasium as gym
 import numpy as np
@@ -41,7 +41,7 @@ def build_training_config(
     start_epsilon: float = 1.0,
     final_epsilon: float = 0.02,
     discount_factor: float = 0.95,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     epsilon_decay = start_epsilon / (0.8 * n_episodes)
     return {
         "n_episodes": n_episodes,
