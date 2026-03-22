@@ -2,3 +2,24 @@ artifacts/
 Snake_RL_venv/
 __pycache__/
 *.py[cod]
+
+# Packaging
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+
+# Claude
+.claude/
