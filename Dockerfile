@@ -9,6 +9,7 @@ RUN pip install --no-cache-dir .
 
 COPY app/ app/
 COPY .streamlit/ .streamlit/
+COPY artifacts/grid_results/ artifacts/grid_results/
 
 EXPOSE 8501
 
