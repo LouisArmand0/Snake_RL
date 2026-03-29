@@ -1,4 +1,4 @@
-"""Page de visualisation d'une partie de Snake."""
+"""Game visualization page."""
 
 from __future__ import annotations
 
@@ -9,14 +9,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import streamlit as st
 import streamlit.components.v1 as components
-
 from utils import inject_css, load_agent, load_config, load_manifest
 
 st.set_page_config(page_title="Visualisation - Snake RL", layout="wide")
 inject_css()
 
 # Import apres le path setup
-from snake_rl.visualization import build_animation_html, rollout_frames, snake_to_frame  # noqa: E402
+from snake_rl.visualization import build_animation_html, snake_to_frame  # noqa: E402
 
 st.title("Visualisation du jeu")
 

@@ -1,4 +1,4 @@
-"""Script de grid search : entraine plusieurs agents avec differents hyperparametres."""
+"""Grid search script: train agents with different hyperparameter combinations."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ def run_grid_search(
     grid_size: int = 10,
     eval_episodes: int = 200,
 ) -> dict:
-    """Lance un grid search et sauvegarde les resultats dans output_dir."""
+    """Run a grid search and save results to output_dir."""
     learning_rates = learning_rates or DEFAULT_LEARNING_RATES
     discount_factors = discount_factors or DEFAULT_DISCOUNT_FACTORS
     output_dir = Path(output_dir)
@@ -41,7 +41,7 @@ def run_grid_search(
         run_dir = output_dir / run_id
         run_dir.mkdir(parents=True, exist_ok=True)
 
-        logger.info("Entrainement %s ...", run_id)
+        logger.info("Training %s ...", run_id)
 
         config = build_training_config(
             n_episodes=n_episodes,
@@ -61,7 +61,7 @@ def run_grid_search(
 
         train_agent(agent, env, n_episodes=n_episodes, progress=True)
 
-        # Historique d'entrainement via RecordEpisodeStatistics
+        # Training history from RecordEpisodeStatistics wrapper
         history = {
             "episode_rewards": [float(r) for r in env.return_queue],
             "episode_lengths": [int(length) for length in env.length_queue],
@@ -69,7 +69,7 @@ def run_grid_search(
 
         metrics = evaluate_agent(agent, env, num_episodes=eval_episodes)
 
-        # Sauvegardes
+        # Save model, config, metrics, history
         agent.save(run_dir / "model.pkl")
 
         with open(run_dir / "config.json", "w") as f:
@@ -100,19 +100,19 @@ def run_grid_search(
         logger.info("  -> avg_apples=%.1f, death_rate=%.2f", metrics["avg_apples"], metrics["death_rate"])
         env.close()
 
-    # Manifest global
+    # Write manifest with all runs
     manifest = {"runs": runs}
     with open(output_dir / "manifest.json", "w") as f:
         json.dump(manifest, f, indent=2)
 
-    logger.info("Grid search termine. %d configurations sauvegardees dans %s", len(runs), output_dir)
+    logger.info("Grid search done. %d configs saved to %s", len(runs), output_dir)
     return manifest
 
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 
-    parser = argparse.ArgumentParser(description="Grid search d'hyperparametres pour Snake RL")
+    parser = argparse.ArgumentParser(description="Hyperparameter grid search for Snake RL")
     parser.add_argument("--output-dir", type=str, default="artifacts/grid_results")
     parser.add_argument("--episodes", type=int, default=DEFAULT_EPISODES)
     parser.add_argument("--size", type=int, default=10)

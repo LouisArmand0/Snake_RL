@@ -11,6 +11,8 @@ State = tuple[int, ...]
 
 
 class SnakeAgent:
+    """Q-learning agent for the Snake game."""
+
     def __init__(
         self,
         env: gym.Env,
@@ -31,12 +33,14 @@ class SnakeAgent:
         self.training_error = []
 
     def get_action(self, obs: dict) -> int:
+        """Pick an action using epsilon-greedy strategy."""
         if np.random.random() < self.epsilon:
             return self.env.action_space.sample()
         return int(np.argmax(self.q_values[self.obs_to_state(obs)]))
 
     @staticmethod
     def obs_to_state(obs: dict) -> State:
+        """Convert observation to a 9-feature state tuple (danger, direction, food)."""
         grid = obs["grid"]
         dx, dy = int(obs["dir"][0]), int(obs["dir"][1])
 
@@ -82,6 +86,7 @@ class SnakeAgent:
         )
 
     def update(self, obs: dict, action: int, reward: float, done: bool, next_obs: dict) -> None:
+        """Update Q-value for (state, action) using the Bellman equation."""
         state = self.obs_to_state(obs)
         next_state = self.obs_to_state(next_obs)
 
@@ -92,9 +97,11 @@ class SnakeAgent:
         self.training_error.append(temporal_difference)
 
     def decay_epsilon(self) -> None:
+        """Decay epsilon linearly towards final_epsilon."""
         self.epsilon = max(self.final_epsilon, self.epsilon - self.epsilon_decay)
 
     def save(self, path: str | Path) -> None:
+        """Save Q-table and hyperparams to a pickle file."""
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         payload = {
@@ -109,6 +116,7 @@ class SnakeAgent:
             pickle.dump(payload, f)
 
     def load(self, path: str | Path) -> None:
+        """Load Q-table from a pickle file."""
         with Path(path).open("rb") as f:
             payload = pickle.load(f)
 

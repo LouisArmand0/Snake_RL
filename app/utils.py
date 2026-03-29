@@ -1,4 +1,4 @@
-"""Utilitaires partages entre les pages Streamlit."""
+"""Shared utilities for Streamlit pages."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 import streamlit as st
 
-# Ajouter src/ au path pour les imports snake_rl
+# Add src/ to path so we can import snake_rl
 _SRC_DIR = str(Path(__file__).resolve().parent.parent / "src")
 if _SRC_DIR not in sys.path:
     sys.path.insert(0, _SRC_DIR)
@@ -20,7 +20,7 @@ ARTIFACTS_DIR = Path(__file__).resolve().parent.parent / "artifacts" / "grid_res
 
 
 def inject_css() -> None:
-    """Injecte le CSS personnalise dans la page."""
+    """Inject custom CSS into the page."""
     css_path = Path(__file__).parent / "style.css"
     if css_path.exists():
         st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
@@ -28,7 +28,7 @@ def inject_css() -> None:
 
 @st.cache_data
 def load_manifest() -> dict | None:
-    """Charge le manifest des resultats de grid search."""
+    """Load the grid search manifest file."""
     manifest_path = ARTIFACTS_DIR / "manifest.json"
     if not manifest_path.exists():
         return None
@@ -38,7 +38,7 @@ def load_manifest() -> dict | None:
 
 @st.cache_data
 def load_history(run_id: str) -> dict:
-    """Charge l'historique d'entrainement d'un run."""
+    """Load training history for a given run."""
     path = ARTIFACTS_DIR / run_id / "history.json"
     with open(path) as f:
         return json.load(f)
@@ -46,7 +46,7 @@ def load_history(run_id: str) -> dict:
 
 @st.cache_data
 def load_metrics(run_id: str) -> dict:
-    """Charge les metriques d'evaluation d'un run."""
+    """Load evaluation metrics for a given run."""
     path = ARTIFACTS_DIR / run_id / "metrics.json"
     with open(path) as f:
         return json.load(f)
@@ -54,14 +54,14 @@ def load_metrics(run_id: str) -> dict:
 
 @st.cache_data
 def load_config(run_id: str) -> dict:
-    """Charge la configuration d'un run."""
+    """Load config for a given run."""
     path = ARTIFACTS_DIR / run_id / "config.json"
     with open(path) as f:
         return json.load(f)
 
 
 def load_agent(run_id: str, grid_size: int = 10) -> tuple[SnakeAgent, any]:
-    """Charge un agent entraine et cree un environnement associe."""
+    """Load a trained agent and create a matching environment."""
     model_path = ARTIFACTS_DIR / run_id / "model.pkl"
     env = make_env(size=grid_size, record_stats=False)
     agent = SnakeAgent(

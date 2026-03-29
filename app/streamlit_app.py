@@ -1,10 +1,14 @@
-"""Page d'accueil du dashboard Snake RL."""
+"""Home page of the Snake RL dashboard."""
 
 from __future__ import annotations
 
-import streamlit as st
+import logging
 
+import streamlit as st
 from utils import inject_css, load_manifest
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
 
 st.set_page_config(
     page_title="Snake RL Dashboard",
@@ -35,8 +39,8 @@ manifest = load_manifest()
 if manifest:
     n_runs = len(manifest["runs"])
     st.success(f"{n_runs} configuration(s) d'entrainement disponible(s).")
+    logger.info("Dashboard charge avec %d configurations", n_runs)
 else:
     st.warning(
-        "Aucun resultat de grid search trouve. "
-        "Lancez `python -m snake_rl.grid_search` pour entrainer les modeles."
+        "Aucun resultat de grid search trouve. Lancez `python -m snake_rl.grid_search` pour entrainer les modeles."
     )

@@ -8,6 +8,7 @@ from .agent import SnakeAgent
 
 
 def evaluate_agent(agent: SnakeAgent, env: Any, num_episodes: int = 200, max_steps: int = 5000) -> dict[str, Any]:
+    """Evaluate the agent in greedy mode and return performance metrics."""
     old_epsilon = agent.epsilon
     agent.epsilon = 0.0
 

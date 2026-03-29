@@ -10,6 +10,7 @@ from .agent import SnakeAgent
 
 
 def snake_to_frame(env: Any) -> np.ndarray:
+    """Convert the current game state to an RGB frame."""
     e = env.unwrapped
     size = e.size
 
@@ -29,6 +30,7 @@ def snake_to_frame(env: Any) -> np.ndarray:
 
 
 def rollout_frames(agent: SnakeAgent, env: Any, max_steps: int = 100000, greedy: bool = True) -> list[np.ndarray]:
+    """Play a full episode and collect frames for animation."""
     old_eps = agent.epsilon
     if greedy:
         agent.epsilon = 0.0
@@ -52,6 +54,7 @@ def rollout_frames(agent: SnakeAgent, env: Any, max_steps: int = 100000, greedy:
 
 
 def build_animation_html(frames: list[np.ndarray], interval_ms: int = 120) -> str:
+    """Build an HTML animation from a list of frames."""
     fig = plt.figure()
     image = plt.imshow(frames[0], interpolation="nearest")
     plt.axis("off")

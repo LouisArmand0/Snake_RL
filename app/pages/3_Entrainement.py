@@ -1,4 +1,4 @@
-"""Page d'entrainement personnalise."""
+"""Custom training page."""
 
 from __future__ import annotations
 
@@ -9,7 +9,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import streamlit as st
 import streamlit.components.v1 as components
-
 from utils import inject_css
 
 st.set_page_config(page_title="Entrainement - Snake RL", layout="wide")
@@ -19,7 +18,7 @@ from snake_rl.agent import SnakeAgent  # noqa: E402
 from snake_rl.env import make_env  # noqa: E402
 from snake_rl.evaluation import evaluate_agent  # noqa: E402
 from snake_rl.training import build_training_config, train_agent  # noqa: E402
-from snake_rl.visualization import build_animation_html, rollout_frames, snake_to_frame  # noqa: E402
+from snake_rl.visualization import build_animation_html, snake_to_frame  # noqa: E402
 
 st.title("Entrainement personnalise")
 

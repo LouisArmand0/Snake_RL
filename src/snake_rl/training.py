@@ -10,6 +10,7 @@ from .agent import SnakeAgent
 
 
 def train_agent(agent: SnakeAgent, env: gym.Env, n_episodes: int, progress: bool = True) -> None:
+    """Train the agent for n_episodes, updating Q-values at each step."""
     iterator = tqdm(range(n_episodes)) if progress else range(n_episodes)
 
     for _ in iterator:
@@ -31,6 +32,7 @@ def train_agent(agent: SnakeAgent, env: gym.Env, n_episodes: int, progress: bool
 
 
 def get_moving_average(values: Any, window: int, mode: str = "valid") -> np.ndarray:
+    """Compute a moving average over a sequence of values."""
     values_np = np.array(values).flatten()
     return np.convolve(values_np, np.ones(window), mode=mode) / window
 
@@ -42,6 +44,7 @@ def build_training_config(
     final_epsilon: float = 0.02,
     discount_factor: float = 0.95,
 ) -> dict[str, float]:
+    """Build a training config dict with automatic epsilon decay calculation."""
     epsilon_decay = start_epsilon / (0.8 * n_episodes)
     return {
         "n_episodes": n_episodes,

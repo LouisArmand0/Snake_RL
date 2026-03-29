@@ -1,11 +1,11 @@
-"""Page de comparaison des entrainements."""
+"""Training comparison page."""
 
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-# Permettre les imports depuis app/
+# Allow imports from app/
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import numpy as np
@@ -13,7 +13,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-
 from utils import inject_css, load_config, load_history, load_manifest, load_metrics
 
 st.set_page_config(page_title="Comparaison - Snake RL", layout="wide")
