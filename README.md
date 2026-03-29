@@ -96,6 +96,28 @@ make format    # Correction automatique
 make test      # Tests unitaires
 ```
 
+## CI/CD
+
+Le projet utilise GitHub Actions (`.github/workflows/ci.yml`) :
+- **Lint** : verification du code avec ruff
+- **Test** : execution des tests avec pytest
+- **Docker** : build et push de l'image sur `ghcr.io/maeltremouille/snake_rl`
+
+Le pipeline se declenche automatiquement a chaque push sur `main` ou `mael-features`.
+
+## Deploiement (SSP Cloud)
+
+L'application est deployee sur le SSP Cloud via ArgoCD (GitOps) :
+
+1. Le CI push l'image Docker sur ghcr.io
+2. ArgoCD surveille le dossier `k8s/` du repo
+3. Kubernetes deploie l'application automatiquement
+
+Les manifestes Kubernetes se trouvent dans `k8s/` :
+- `deployment.yaml` : configuration du container
+- `service.yaml` : exposition du port 8501
+- `ingress.yaml` : acces externe via URL
+
 ## Notebook
 
 Le notebook `snake.ipynb` reste disponible pour l'exploration interactive :
