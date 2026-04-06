@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: snake-rl
-          image: ghcr.io/maeltremouille/snake_rl:latest
+          image: ghcr.io/maximechansat/snake_rl:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8501

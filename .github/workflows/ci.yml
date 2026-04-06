@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, mael-features]
+    branches: [main, test-triturage]
   pull_request:
-    branches: [main, mael-features]
+    branches: [main, test-triturage]
 
 env:
   REGISTRY: ghcr.io
