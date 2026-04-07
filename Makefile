@@ -1,5 +1,9 @@
 .PHONY: install install-dev lint format test train grid-search app docker-build docker-run
 
+S3_ENDPOINT_URL ?= https://minio.lab.sspcloud.fr
+S3_ARTIFACTS_URI ?= s3://mchansat/snake-rl/artifacts/grid_results
+LOCAL_ARTIFACTS_DIR ?= artifacts/grid_results
+
 install:
 	pip install -e .
 
@@ -22,7 +26,12 @@ train:
 	snake-train --episodes 10000 --model-path artifacts/best_model.pkl
 
 grid-search:
-	python -m snake_rl.grid_search --output-dir artifacts/grid_results --episodes 50000
+	python -m snake_rl.grid_search --output-dir $(LOCAL_ARTIFACTS_DIR) --episodes 50000
+
+upload-artifacts:
+	python -c "import os, s3fs; fs=s3fs.S3FileSystem(client_kwargs={'endpoint_url': os.environ.get('S3_ENDPOINT_URL', '$(S3_ENDPOINT_URL)')}); fs.put('$(LOCAL_ARTIFACTS_DIR)', '$(S3_ARTIFACTS_URI)', recursive=True)"
+
+train-grid-upload: grid-search upload-artifacts
 
 app:
 	streamlit run app/streamlit_app.py

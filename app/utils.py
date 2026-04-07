@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
+import fsspec
 import streamlit as st
 
 # Add src/ to path so we can import snake_rl
@@ -16,7 +18,19 @@ if _SRC_DIR not in sys.path:
 from snake_rl.agent import SnakeAgent  # noqa: E402
 from snake_rl.env import make_env  # noqa: E402
 
-ARTIFACTS_DIR = Path(__file__).resolve().parent.parent / "artifacts" / "grid_results"
+DEFAULT_ARTIFACTS_URI = str(Path(__file__).resolve().parent.parent / "artifacts" / "grid_results")
+ARTIFACTS_URI = os.getenv("SNAKE_RL_ARTIFACTS_URI", DEFAULT_ARTIFACTS_URI)
+S3_ENDPOINT_URL = os.getenv("S3_ENDPOINT_URL", "https://minio.lab.sspcloud.fr")
+S3_ANON = os.getenv("S3_ANON", "false").lower() == "true"
+
+
+def open_artifact(path: str, mode: str = "r"):
+    """Open an artifact from local storage or S3, depending on ARTIFACTS_URI."""
+    artifact_uri = f"{ARTIFACTS_URI.rstrip('/')}/{path}"
+    storage_options = {}
+    if artifact_uri.startswith("s3://"):
+        storage_options = {"anon": S3_ANON, "client_kwargs": {"endpoint_url": S3_ENDPOINT_URL}}
+    return fsspec.open(artifact_uri, mode=mode, **storage_options).open()
 
 
 def inject_css() -> None:
@@ -29,40 +43,36 @@ def inject_css() -> None:
 @st.cache_data
 def load_manifest() -> dict | None:
     """Load the grid search manifest file."""
-    manifest_path = ARTIFACTS_DIR / "manifest.json"
-    if not manifest_path.exists():
+    try:
+        with open_artifact("manifest.json") as f:
+            return json.load(f)
+    except FileNotFoundError:
         return None
-    with open(manifest_path) as f:
-        return json.load(f)
 
 
 @st.cache_data
 def load_history(run_id: str) -> dict:
     """Load training history for a given run."""
-    path = ARTIFACTS_DIR / run_id / "history.json"
-    with open(path) as f:
+    with open_artifact(f"{run_id}/history.json") as f:
         return json.load(f)
 
 
 @st.cache_data
 def load_metrics(run_id: str) -> dict:
     """Load evaluation metrics for a given run."""
-    path = ARTIFACTS_DIR / run_id / "metrics.json"
-    with open(path) as f:
+    with open_artifact(f"{run_id}/metrics.json") as f:
         return json.load(f)
 
 
 @st.cache_data
 def load_config(run_id: str) -> dict:
     """Load config for a given run."""
-    path = ARTIFACTS_DIR / run_id / "config.json"
-    with open(path) as f:
+    with open_artifact(f"{run_id}/config.json") as f:
         return json.load(f)
 
 
 def load_agent(run_id: str, grid_size: int = 10) -> tuple[SnakeAgent, any]:
     """Load a trained agent and create a matching environment."""
-    model_path = ARTIFACTS_DIR / run_id / "model.pkl"
     env = make_env(size=grid_size, record_stats=False)
     agent = SnakeAgent(
         env=env,
@@ -71,6 +81,7 @@ def load_agent(run_id: str, grid_size: int = 10) -> tuple[SnakeAgent, any]:
         epsilon_decay=0.0,
         final_epsilon=0.0,
     )
-    agent.load(model_path)
+    with open_artifact(f"{run_id}/model.pkl", mode="rb") as f:
+        agent.load(f)
     agent.epsilon = 0.0
     return agent, env

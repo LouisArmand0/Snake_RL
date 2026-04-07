@@ -10,8 +10,6 @@ RUN pip install --no-cache-dir .
 COPY app/ app/
 COPY .streamlit/ .streamlit/
 
-COPY artifacts/grid_results/ artifacts/grid_results/
-
 EXPOSE 8501
 
 CMD ["streamlit", "run", "app/streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]

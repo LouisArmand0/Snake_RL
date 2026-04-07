@@ -1,5 +1,3 @@
-artifacts/best_model.pkl
-Snake_RL_venv/
 __pycache__/
 *.py[cod]
 
@@ -8,8 +6,15 @@ __pycache__/
 dist/
 build/
 
+# artifacts
+artifacts/grid_results/
+artifacts/best_model.pkl
+*.pkl
+
 # Virtual environments
 .venv/
+Snake_RL_venv/
+
 
 # IDE
 .vscode/

@@ -3,6 +3,7 @@ from __future__ import annotations
 import pickle
 from collections import defaultdict
 from pathlib import Path
+from typing import BinaryIO
 
 import gymnasium as gym
 import numpy as np
@@ -115,10 +116,13 @@ class SnakeAgent:
         with path.open("wb") as f:
             pickle.dump(payload, f)
 
-    def load(self, path: str | Path) -> None:
+    def load(self, path: str | Path | BinaryIO) -> None:
         """Load Q-table from a pickle file."""
-        with Path(path).open("rb") as f:
-            payload = pickle.load(f)
+        if hasattr(path, "read"):
+            payload = pickle.load(path)
+        else:
+            with Path(path).open("rb") as f:
+                payload = pickle.load(f)
 
         q_values: dict[State, np.ndarray] = payload["q_values"]
         self.q_values = defaultdict(lambda: np.zeros(self.env.action_space.n))

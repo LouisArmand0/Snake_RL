@@ -18,6 +18,8 @@ dependencies = [
     "streamlit>=1.30",
     "plotly>=5.18",
     "pandas>=2.0",
+    "fsspec>=2024.0",
+    "s3fs>=2024.0",
 ]
 
 [project.optional-dependencies]
