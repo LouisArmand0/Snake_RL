@@ -15,7 +15,7 @@ from .training import build_training_config, train_agent
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_LEARNING_RATES = [0.005, 0.01, 0.05]
+DEFAULT_LEARNING_RATES = [0.005, 0.01, 0.05, 0.1]
 DEFAULT_DISCOUNT_FACTORS = [0.90, 0.95, 0.99]
 DEFAULT_EPISODES = 50_000
 

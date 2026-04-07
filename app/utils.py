@@ -40,7 +40,7 @@ def inject_css() -> None:
         st.markdown(f"<style>{css_path.read_text()}</style>", unsafe_allow_html=True)
 
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_manifest() -> dict | None:
     """Load the grid search manifest file."""
     try:
@@ -50,21 +50,21 @@ def load_manifest() -> dict | None:
         return None
 
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_history(run_id: str) -> dict:
     """Load training history for a given run."""
     with open_artifact(f"{run_id}/history.json") as f:
         return json.load(f)
 
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_metrics(run_id: str) -> dict:
     """Load evaluation metrics for a given run."""
     with open_artifact(f"{run_id}/metrics.json") as f:
         return json.load(f)
 
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_config(run_id: str) -> dict:
     """Load config for a given run."""
     with open_artifact(f"{run_id}/config.json") as f:

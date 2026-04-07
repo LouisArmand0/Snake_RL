@@ -29,7 +29,7 @@ grid-search:
 	python -m snake_rl.grid_search --output-dir $(LOCAL_ARTIFACTS_DIR) --episodes 50000
 
 upload-artifacts:
-	python -c "import os, s3fs; fs=s3fs.S3FileSystem(client_kwargs={'endpoint_url': os.environ.get('S3_ENDPOINT_URL', '$(S3_ENDPOINT_URL)')}); fs.put('$(LOCAL_ARTIFACTS_DIR)', '$(S3_ARTIFACTS_URI)', recursive=True)"
+	python -c "from pathlib import Path; import os, s3fs; local=Path('$(LOCAL_ARTIFACTS_DIR)'); remote='$(S3_ARTIFACTS_URI)'; fs=s3fs.S3FileSystem(client_kwargs={'endpoint_url': os.environ.get('S3_ENDPOINT_URL', '$(S3_ENDPOINT_URL)')}); [fs.put_file(str(p), f'{remote}/{p.relative_to(local).as_posix()}') for p in local.rglob('*') if p.is_file()]; print('upload done')"
 
 train-grid-upload: grid-search upload-artifacts
 
