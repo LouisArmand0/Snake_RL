@@ -7,6 +7,7 @@ Dashboard interactif Streamlit pour comparer differentes configurations d'entrai
 
 - Python 3.10+
 - `pip`
+- Acces S3/MinIO SSPCloud si vous voulez mettre a jour les artefacts d'entrainement
 
 ## Installation
 
@@ -71,6 +72,35 @@ Entraine plusieurs modeles avec differents hyperparametres :
 make grid-search
 ```
 
+Les resultats sont ecrits localement dans `artifacts/grid_results/`, puis peuvent etre envoyes vers S3.
+
+### Mettre a jour les artefacts S3
+
+Les modeles entraines ne sont plus versionnes dans Git et ne sont plus embarques dans l'image Docker.
+Ils sont stockes sur le S3/MinIO du SSPCloud :
+
+```text
+s3://mchansat/snake-rl/artifacts/grid_results
+```
+
+Apres un entrainement, envoyez les artefacts vers S3 :
+
+```bash
+make upload-artifacts
+```
+
+Si `make` n'est pas disponible, utilisez la commande Python equivalente :
+
+```bash
+python -c "import os, s3fs; fs=s3fs.S3FileSystem(client_kwargs={'endpoint_url': os.environ.get('S3_ENDPOINT_URL', 'https://minio.lab.sspcloud.fr')}); fs.put('artifacts/grid_results', 's3://mchansat/snake-rl/artifacts/grid_results', recursive=True)"
+```
+
+Pour entrainer puis envoyer les artefacts :
+
+```bash
+make train-grid-upload
+```
+
 ### Lancer le dashboard
 
 ```bash
@@ -79,6 +109,25 @@ make app
 
 Ouvre ensuite http://localhost:8501 dans un navigateur.
 
+Par defaut, le dashboard lit les artefacts locaux dans `artifacts/grid_results/`.
+Pour lire les artefacts depuis S3 en acces public anonyme :
+
+```bash
+export SNAKE_RL_ARTIFACTS_URI="s3://mchansat/snake-rl/artifacts/grid_results"
+export S3_ENDPOINT_URL="https://minio.lab.sspcloud.fr"
+export S3_ANON="true"
+streamlit run app/streamlit_app.py
+```
+
+Sous PowerShell :
+
+```powershell
+$env:SNAKE_RL_ARTIFACTS_URI="s3://mchansat/snake-rl/artifacts/grid_results"
+$env:S3_ENDPOINT_URL="https://minio.lab.sspcloud.fr"
+$env:S3_ANON="true"
+streamlit run app/streamlit_app.py
+```
+
 ## Docker
 
 ```bash
@@ -86,7 +135,8 @@ make docker-build
 make docker-run
 ```
 
-Le dashboard est accessible sur http://localhost:8501.
+Le dashboard est accessible sur http://localhost:8501. L'image Docker ne contient pas les artefacts d'entrainement :
+ils sont lus au runtime depuis S3 via les variables d'environnement ci-dessus.
 
 ## Qualite du code
 
@@ -101,9 +151,9 @@ make test      # Tests unitaires
 Le projet utilise GitHub Actions (`.github/workflows/ci.yml`) :
 - **Lint** : verification du code avec ruff
 - **Test** : execution des tests avec pytest
-- **Docker** : build et push de l'image sur `ghcr.io/maeltremouille/snake_rl`
+- **Docker** : build et push de l'image sur `ghcr.io/maximechansat/snake_rl`
 
-Le pipeline se declenche automatiquement a chaque push sur `main` ou `mael-features`.
+Le pipeline se declenche automatiquement a chaque push sur `main` ou `test-triturage`.
 
 ## Deploiement (SSP Cloud)
 
@@ -118,17 +168,35 @@ Les manifestes Kubernetes se trouvent dans `k8s/` :
 - `service.yaml` : exposition du port 8501
 - `ingress.yaml` : acces externe via URL
 
+Le deploiement configure le dashboard pour lire les artefacts depuis S3 :
+
+```yaml
+SNAKE_RL_ARTIFACTS_URI=s3://mchansat/snake-rl/artifacts/grid_results
+S3_ENDPOINT_URL=https://minio.lab.sspcloud.fr
+S3_ANON=true
+```
+
+Le dossier S3 correspondant doit rester accessible en lecture anonyme, par exemple avec :
+
+```bash
+mc anonymous set download s3/mchansat/snake-rl/artifacts/
+```
+
 ## Notebook
 
 Le notebook `snake.ipynb` reste disponible pour l'exploration interactive :
 
 ```python
-from snake_rl import make_env, SnakeAgent, build_training_config, visualize_episode
+import os
 
-env = make_env(size=10)
-cfg = build_training_config(n_episodes=1000)
-agent = SnakeAgent(env, cfg["learning_rate"], 0.0, cfg["epsilon_decay"], cfg["final_epsilon"])
-agent.load("artifacts/best_model.pkl")
+from app.utils import load_agent
+from snake_rl import visualize_episode
+
+os.environ["SNAKE_RL_ARTIFACTS_URI"] = "s3://mchansat/snake-rl/artifacts/grid_results"
+os.environ["S3_ENDPOINT_URL"] = "https://minio.lab.sspcloud.fr"
+os.environ["S3_ANON"] = "true"
+
+agent, env = load_agent("lr0.005_df0.9_ep50000", grid_size=10)
 
 html = visualize_episode(agent, env, greedy=True)
 ```
