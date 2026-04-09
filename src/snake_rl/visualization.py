@@ -9,10 +9,7 @@ from matplotlib import animation
 from src.snake_rl.agent import SnakeAgent
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  Palette
-# ══════════════════════════════════════════════════════════════════════════════
-
+#Palette
 BACKGROUND = np.array([15, 17, 26], dtype=np.uint8)
 
 
@@ -145,11 +142,6 @@ TAIL_SPRITES: dict[tuple[int, int], np.ndarray] = {
 
 _TRANSPARENT = np.array([0, 0, 0], dtype=np.uint8)
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  Rendering helpers
-# ══════════════════════════════════════════════════════════════════════════════
-
 def _unit(a: tuple, b: tuple) -> tuple[int, int]:
     """Unit direction vector from cell a to cell b."""
     dx = int(b[0]) - int(a[0])
@@ -172,11 +164,6 @@ def _blit(frame: np.ndarray, sprite: np.ndarray, cx: int, cy: int, scale: int, g
             fx = cx * scale + pad_x + sx
             if 0 <= fy < limit and 0 <= fx < limit:
                 frame[fy, fx] = color
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  Frame builder
-# ══════════════════════════════════════════════════════════════════════════════
 
 def snake_to_frame(env: Any, scale: int = 12) -> np.ndarray:
     """Convert the current game state to an RGB frame using pixel-art sprites."""
@@ -215,11 +202,6 @@ def snake_to_frame(env: Any, scale: int = 12) -> np.ndarray:
 
     return frame[::-1]
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  Episode rollout
-# ══════════════════════════════════════════════════════════════════════════════
-
 def rollout_frames(
     agent: SnakeAgent,
     env: Any,
@@ -246,11 +228,6 @@ def rollout_frames(
 
     agent.epsilon = old_eps
     return frames
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  Animation builder
-# ══════════════════════════════════════════════════════════════════════════════
 
 def build_animation_html(frames: list[np.ndarray], interval_ms: int = 120) -> str:
     """Wrap a list of frames into a self-contained HTML animation."""
@@ -287,10 +264,6 @@ def build_animation_html(frames: list[np.ndarray], interval_ms: int = 120) -> st
     plt.close(fig)
     return html
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-#  Public API
-# ══════════════════════════════════════════════════════════════════════════════
 
 def visualize_episode(
     agent: SnakeAgent,
