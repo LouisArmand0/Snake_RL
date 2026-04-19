@@ -8,7 +8,6 @@ from matplotlib import animation
 
 from src.snake_rl.agent import SnakeAgent
 
-
 #Palette
 BACKGROUND = np.array([15, 17, 26], dtype=np.uint8)
 
